@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  # Serviço API - NestJS
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    container_name: nestjs-api
+    ports:
+      - "3040:3000"
+    environment:
+      - DATABASE_URL=postgres://wgjrcnab_user:f5da7e15d18a936847c7c8c8334d331a@postgres:5432/wgjrcnab_db
+      - JWT_SECRET=mysecret
+    networks:
+      - app-network
+
+  # Serviço Frontend - React
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: react-frontend
+    ports:
+      - "3000:3000"
+    environment:
+        - REACT_APP_API_URL=http://localhost:3040
+    depends_on:
+      - api
+    networks:
+      - app-network
+
+  # Serviço de Banco de Dados PostgreSQL
+  postgres:
+    image: postgres:13
+    container_name: wgjrcnab_postgres
+    environment:
+      POSTGRES_USER: wgjrcnab_user
+      POSTGRES_PASSWORD: f5da7e15d18a936847c7c8c8334d331a
+      POSTGRES_DB: wgjrcnab_db
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5436:5432"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
