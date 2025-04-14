@@ -44,4 +44,3 @@ npm run test
 - Backend: NestJS
 - Frontend: React
 - Banco de Dados: PostgreSQL
-
