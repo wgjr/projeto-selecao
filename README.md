@@ -22,6 +22,23 @@ Acesse o backend no seguinte endereço:
 
 ### Acesse a documentação da API: http://localhost:3040/api 
 
+### Testes
+```bash 
+npm run test
+```
+- PASS  src/tests/balance.service.spec.ts
+- PASS  src/tests/auth.controller.spec.ts
+- PASS  src/tests/balance.controller.spec.ts
+- PASS  src/tests/payments.controller.spec.ts
+- PASS  src/tests/payments.service.spec.ts
+
+
+- Test Suites: 5 passed, 5 total
+- Tests:       34 passed, 34 total
+- Snapshots:   0 total
+- Time:        4.968 s, estimated 5 s
+
+
 
 ## Tecnologias Utilizadas
 - Backend: NestJS
