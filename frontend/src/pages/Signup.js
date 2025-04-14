@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import axios from 'axios';
 import {Link} from 'react-router-dom';
 import TextField from '@mui/material/TextField';
@@ -11,6 +11,14 @@ const Signup = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+
+    useEffect(() => {
+        document.body.classList.add('content-login');
+
+        return () => {
+            document.body.classList.remove('content-login');
+        };
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -38,16 +46,16 @@ const Signup = () => {
             {error && <p className="error">{error}</p>}
             <form onSubmit={handleSubmit}>
                 <div>
-                    <TextField type="text" label="Nome de usuário" color="secondary" value={username}
-                               onChange={(e) => setUsername(e.target.value)} focused required/>
+                    <TextField type="text" label="Nome de usuário" color="secondary" value={username} fullWidth
+                               onChange={(e) => setUsername(e.target.value)} required/>
                 </div>
                 <div>
-                    <TextField type="text" label="Email" color="secondary" value={email}
-                               onChange={(e) => setEmail(e.target.value)} focused required/>
+                    <TextField type="text" label="Email" color="secondary" value={email} fullWidth
+                               onChange={(e) => setEmail(e.target.value)} required/>
                 </div>
                 <div>
-                    <TextField type="password" label="Senha" color="secondary" value={password}
-                               onChange={(e) => setPassword(e.target.value)} focused required/>
+                    <TextField type="password" label="Senha" color="secondary" value={password} fullWidth
+                               onChange={(e) => setPassword(e.target.value)} required/>
                 </div>
                 <Button variant="contained" type="submit">
                     Register

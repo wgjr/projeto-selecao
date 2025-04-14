@@ -1,14 +1,14 @@
-import {IsNotEmpty, IsString, IsNumber, isNotEmpty} from "class-validator";
+import { IsNotEmpty, IsString, IsNumber, isNotEmpty } from 'class-validator';
 
 export class CreateBalanceDto {
-    @IsString()
-    @IsNotEmpty({ message: 'Name must be a non-empty string' })
-    name: string;
+  @IsString()
+  @IsNotEmpty({ message: 'Name must be a non-empty string' })
+  name: string;
 
-    @IsNumber()
-    @IsNotEmpty({ message: 'amount is a not empty number' })
-    amount: number;
+  @IsNumber()
+  @IsNotEmpty({ message: 'amount is a not empty number' })
+  amount: number;
 
-    @IsString()
-    description?: string
+  @IsString()
+  description?: string;
 }

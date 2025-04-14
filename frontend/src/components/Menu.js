@@ -1,7 +1,7 @@
 import React from 'react';
 import {useDispatch} from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import {clearToken, setToken} from "../redux/authSlice";
+import {clearToken} from "../redux/authSlice";
 
 function Menu() {
     const navigate = useNavigate();

@@ -2,7 +2,7 @@ import {Alert, AlertTitle} from "@mui/material";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import React, {useState} from "react";
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import api from "../axios";
 import MainLayout from "../layouts/main-layout";
 import showAlert from "../utils/alert";
@@ -13,6 +13,7 @@ export default function CreateBalance() {
     const [amount, setAmount] = useState('');
     const [description, setDescription] = useState('');
     const [alert, setAlert] = useState({ type: '', message: '' });
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -24,9 +25,14 @@ export default function CreateBalance() {
             });
 
             setAlert({ type: 'success', message: 'Saldo adicionado com sucesso' });
+            handleRedirect()
         } catch (error) {
             setAlert({ type: 'warning', message: 'Ocorreu um erro ao adicionar o saldo' });
         }
+    };
+
+    const handleRedirect = () => {
+        navigate('/balance');
     };
 
     return (

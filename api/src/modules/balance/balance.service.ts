@@ -1,98 +1,119 @@
-import {Injectable} from '@nestjs/common';
-import {InjectRepository} from '@nestjs/typeorm';
-import {Repository} from 'typeorm';
-import {Balance} from './balance.entity';
-import {User} from '../user/user.entity';
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Balance } from './balance.entity';
+import { User } from '../user/user.entity';
 
 @Injectable()
 export class BalanceService {
-    constructor(
-        @InjectRepository(Balance)
-        private balanceRepository: Repository<Balance>,
-        @InjectRepository(User)
-        private userRepository: Repository<User>,
-    ) {
+  constructor(
+    @InjectRepository(Balance)
+    private balanceRepository: Repository<Balance>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+  ) {}
+
+  async createBalance(data: {
+    userId: number;
+    name: string;
+    description?: string;
+    amountValue: number;
+  }): Promise<Balance> {
+    const user = await this.userRepository.findOne({
+      where: { id: data.userId },
+    });
+
+    if (!user) {
+      throw new Error('Usuário não localizado');
     }
 
-    async createBalance(
-        data: {
-            userId: number,
-            name: string,
-            description?: string,
-            amountValue: number,
-        }
-    ): Promise<Balance> {
-        const user = await this.userRepository.findOne({where: {id: data.userId}});
+    const balance = new Balance();
+    balance.name = data.name;
+    balance.description = data.description;
+    balance.initial_value = data.amountValue;
+    balance.remaining_value = data.amountValue;
+    balance.operations_value = 0;
+    balance.user_id = data.userId;
 
-        if (!user) {
-            throw new Error('Usuário não localizado');
-        }
+    const saveBalance = await this.balanceRepository.save(balance);
 
-        const balance = new Balance();
-        balance.name = data.name;
-        balance.description = data.description;
-        balance.initial_value = data.amountValue;
-        balance.remaining_value = data.amountValue;
-        balance.operations_value = 0
-        balance.user_id = data.userId
-
-        const saveBalance = await this.balanceRepository.save(balance);
-
-        if (!saveBalance) {
-            throw new Error('Ocorreu um erro ao registrar o saldo. Tente novamente.');
-        }
-
-        return saveBalance
+    if (!saveBalance) {
+      throw new Error('Ocorreu um erro ao registrar o saldo. Tente novamente.');
     }
 
-    async processBalance(balanceId: number, value: number): Promise<Balance> {
-        const balance = await this.balanceRepository.findOne({
-            where: { id: balanceId },
-        });
+    return saveBalance;
+  }
 
-        if (!balance) {
-            throw new Error('Saldo não localizado');
-        }
+  async processBalance(
+    balanceId: number,
+    value: number,
+    userId: number,
+  ): Promise<Balance> {
+    const balance = await this.balanceRepository.findOne({
+      where: { id: balanceId, user_id: userId },
+    });
 
-        if (balance.remaining_value < value) {
-            throw new Error('Saldo insuficiente para essa operação');
-        }
-
-        balance.remaining_value -= value
-        balance.operations_value += value
-
-        return await this.balanceRepository.save(balance);
+    if (!balance) {
+      throw new Error('Saldo não localizado');
     }
 
-    async getBalances(userId: number): Promise<Balance[]> {
-        return this.balanceRepository.find({where: {user_id: userId}});
+    if (balance.remaining_value < value) {
+      throw new Error('Saldo insuficiente para essa operação');
     }
 
-    async updateBalance(balanceId: number, newName: string, newValue: number): Promise<Balance> {
-        const balance = await this.balanceRepository.findOne({where: {id: balanceId}});
+    balance.remaining_value = +balance.remaining_value - +value;
+    balance.operations_value = +balance.operations_value + +value;
 
-        if (!balance) {
-            throw new Error('Saldo não localizado');
-        }
+    return await this.balanceRepository.save(balance);
+  }
 
-        let initialValue = balance?.remaining_value ?? 0
+  async getBalances(userId: number): Promise<Balance[]> {
+    return await this.balanceRepository.find({ where: { user_id: userId } });
+  }
 
-        balance.name = newName;
-        balance.initial_value = initialValue;
-        balance.remaining_value = newValue
+  async getBalanceFromId(
+    balanceId: number,
+    userId: number,
+  ): Promise<Balance | null> {
+    return await this.balanceRepository.findOne({
+      where: { id: balanceId, user_id: userId },
+    });
+  }
 
-        return await this.balanceRepository.update(balance, {id: balanceId}).then();
+  async updateBalance(
+    balanceId: number,
+    newName: string,
+    userId: number,
+  ): Promise<Balance> {
+    const balance = await this.balanceRepository.findOne({
+      where: { id: balanceId, user_id: userId },
+    });
+
+    if (!balance) {
+      throw new Error('Saldo não localizado');
     }
 
-    async deleteBalance(balanceId: number): Promise<Balance> {
-        const balance = await this.balanceRepository.findOne({where: {id: balanceId}});
+    balance.name = newName;
 
-        if (!balance) {
-            throw new Error('Saldo não localizado');
-        }
+    return await this.balanceRepository.save(balance);
+  }
 
-        await this.balanceRepository.delete({id: balanceId});
+  async deleteBalance(balanceId: number, userId: number): Promise<Balance> {
+    const balance = await this.balanceRepository.findOne({
+      where: { id: balanceId, user_id: userId },
+      relations: ['payments'],
+    });
 
-        return balance;
+    if (!balance) {
+      throw new Error('Saldo não localizado');
     }
+
+    if (balance.payments.length > 0) {
+      throw new Error('Existem pagamentos associados a esse saldo');
+    }
+
+    await this.balanceRepository.delete({ id: balanceId });
+
+    return balance;
+  }
 }

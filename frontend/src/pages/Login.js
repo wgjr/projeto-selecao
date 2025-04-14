@@ -13,7 +13,7 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const dispatch = useDispatch();
-    const navigate = useNavigate(); // Hook para navegação programática
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (hasSession()) {
@@ -30,7 +30,7 @@ const Login = () => {
     }, []);
 
     const handleRedirect = () => {
-        navigate('/payments'); // Redireciona para a rota /upload
+        navigate('/payments');
     };
 
     const handleSubmit = async (e) => {

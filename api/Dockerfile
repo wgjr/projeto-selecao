@@ -1,5 +1,5 @@
 # Use a imagem oficial do Node.js
-FROM node:16
+FROM node:18
 
 # Define o diretório de trabalho dentro do container
 WORKDIR /usr/src/app
@@ -8,7 +8,7 @@ WORKDIR /usr/src/app
 COPY api/package*.json ./
 
 # Instala as dependências dentro do container
-RUN npm install
+RUN npm install --legacy-peer-deps
 
 RUN npm rebuild bcrypt --build-from-source
 
